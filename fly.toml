@@ -1,0 +1,43 @@
+# fly.toml file generated for gitea-juev on 2022-09-14T10:13:56+03:00
+
+app = "gitea-juev"
+kill_signal = "SIGINT"
+kill_timeout = 5
+
+[build]
+  image = "gitea/gitea:latest" # latest is the most recent stable release
+
+[env]
+  GITEA__database__DB_TYPE="sqlite3"
+  GITEA__database__PATH="/data/gitea/gitea.db"
+  GITEA__server__DOMAIN="git.juev.org"
+  GITEA__server__SSH_DOMAIN="git.juev.org"
+  GITEA__server__ROOT_URL="https://git.juev.org"
+  GITEA__security__INSTALL_LOCK="true" # Don't show installer
+  GITEA__service__DISABLE_REGISTRATION="true" # TODO: uncomment once you have created your first user
+
+# persist data
+[[mounts]]
+  destination = "/data"
+  source = "gitea_data"
+
+# ssh traffic
+[[services]]
+  internal_port = 22
+  protocol = "tcp"
+  [[services.ports]]
+    port = 22
+
+# https traffic
+[[services]]
+  internal_port = 3000
+  protocol = "tcp"
+  
+  [[services.ports]]
+    handlers = ["http"]
+    force_https = true
+    port = 80
+
+  [[services.ports]]
+    handlers = ["tls", "http"]
+    port = 443
